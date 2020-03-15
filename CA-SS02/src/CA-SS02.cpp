@@ -10,8 +10,7 @@ RF24 radio(9, 10);                     //nRF24L01 (CE,CSN) connections PIN
 const uint64_t address = 401584261612; //CA-SS02: 40 + Timestamp
 
 uint16_t delayTime = default_delayTime;
-uint16_t new_delayTime;
-boolean state_Device;
+uint32_t data[3]; //data[0]: ON/OFF - data[1]: new_delayTime - data[2]: state_Device
 
 void setup()
 {
@@ -25,6 +24,7 @@ void setup()
   radio.begin();
   radio.setRetries(15, 15);
   radio.setPALevel(RF24_PA_MAX);
+  data[0] = 0;
 }
 
 void loop()
@@ -33,34 +33,44 @@ void loop()
   radio.startListening();
   if (radio.available())
   {
-    memset(&new_delayTime, ' ', sizeof(new_delayTime));
-    radio.read(&new_delayTime, sizeof(new_delayTime));
-    Serial.println("New delay time: ");
-    Serial.println(new_delayTime);
-    delayTime = new_delayTime;
+    memset(&data, ' ', sizeof(data));
+    radio.read(&data, sizeof(data));
+
+    delayTime = data[1];
+    Serial.println("__________________");
+    Serial.print("Mode: ");
+    Serial.println(data[0]);
+    Serial.print("New delay time: ");
+    Serial.println(data[1]);
+    Serial.print("State device: ");
+    Serial.println(data[2]);
   }
 
-  boolean check_PIRSensor = digitalRead(PIR_sensor);
-  if (check_PIRSensor)
+  if (data[0])
   {
-    digitalWrite(control_Device, HIGH);
-    state_Device = true;
-    radio.stopListening();
-    radio.openWritingPipe(address);
-    radio.write(&state_Device, sizeof(state_Device));
-    while (check_PIRSensor)
+    boolean check_PIRSensor = digitalRead(PIR_sensor);
+    if (check_PIRSensor)
     {
-      check_PIRSensor = digitalRead(PIR_sensor);
-      delay(100);
+      digitalWrite(control_Device, HIGH);
+      data[2] = true;
+      radio.stopListening();
+      radio.openWritingPipe(address);
+      radio.write(&data, sizeof(data));
+      while (check_PIRSensor)
+      {
+        check_PIRSensor = digitalRead(PIR_sensor);
+        delay(100);
+      }
+      delay(delayTime);
     }
-    delay(delayTime);
+    else
+    {
+      digitalWrite(control_Device, LOW);
+      data[2] = false;
+      radio.stopListening();
+      radio.openWritingPipe(address);
+      radio.write(&data, sizeof(data));
+    }
   }
-  else
-  {
-    digitalWrite(control_Device, LOW);
-    state_Device = false;
-    radio.stopListening();
-    radio.openWritingPipe(address);
-    radio.write(&state_Device, sizeof(state_Device));
-  }
+  delay(100);
 }
