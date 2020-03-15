@@ -13,13 +13,13 @@ boolean smartConfigStart = false;
 const char *ssid = "username wifi";
 const char *password = "password wifi";
 
-boolean stateDevice;
-uint16_t newDelaytime_MQTT = 0;
+uint32_t data[3]; //data[0]: ON/OFF - data[1]: new_delayTime - data[2]: state_Device
 const int smartConfig_LED = 16;
 
-//Topic: product_id/button_id     char[10] = "l"
+//Topic: product_id/button_id     char[10] = "l" / "O"
 const char *CA_SS02_delayTime = "CA-SS02-delayTime";
 const char *CA_SS02_deviceState = "CA-SS02-deviceState";
+const char *CA_SS02_ONOFF = "CA-SS02-ONOFF";
 
 //Config MQTT broker information:
 const char *mqtt_server = "chika.gq";
@@ -106,6 +106,7 @@ void reconnect_mqtt()
     {
       Serial.println("Connected");
       client.subscribe(CA_SS02_delayTime);
+      client.subscribe(CA_SS02_ONOFF);
     }
     else
     {
@@ -133,12 +134,28 @@ void callback(char *topic, byte *payload, unsigned int length)
 
   if ((char)topic[10] == 'l')
   {
-    newDelaytime_MQTT = calculate_delayTime * 1000;
+    data[1] = calculate_delayTime * 1000;
     Serial.print("\n\nNew delay time send to CA-SS02: ");
-    Serial.println(newDelaytime_MQTT);
+    Serial.println(data[1]);
     radio.stopListening();
     radio.openWritingPipe(address);
-    radio.write(&newDelaytime_MQTT, sizeof(newDelaytime_MQTT));
+    radio.write(&data, sizeof(data));
+  }
+
+  if ((char)topic[10] == 'O')
+  {
+    if ((char)payload[0])
+    {
+      data[0] = true;
+    }
+    else
+    {
+      data[0] = false;
+    }
+    
+    radio.stopListening();
+    radio.openWritingPipe(address);
+    radio.write(&data, sizeof(data));
   }
 }
 
@@ -174,6 +191,7 @@ void setup()
   Serial.println("Trying connect MQTT ...");
   client.setServer(mqtt_server, mqtt_port);
   client.setCallback(callback);
+  data[1] = 0;
 }
 
 void loop()
@@ -192,10 +210,10 @@ void loop()
   radio.startListening();
   if (radio.available())
   {
-    memset(&stateDevice, ' ', sizeof(stateDevice));
-    radio.read(&stateDevice, sizeof(stateDevice));
+    memset(&data, ' ', sizeof(data));
+    radio.read(&data, sizeof(data));
 
-    if (stateDevice)
+    if (data[2])
       client.publish(CA_SS02_deviceState, "1", true);
     else
       client.publish(CA_SS02_deviceState, "0", true);
