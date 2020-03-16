@@ -4,9 +4,11 @@
 
 #define PIR_sensor 3
 #define control_Device 4
+#define signal_Led 5
 #define default_delayTime 3000
-RF24 radio(9, 10);                     //nRF24L01 (CE,CSN) connections PIN
-const uint64_t address = 401584261612; //CA-SS02: 40 + Timestamp
+
+RF24 radio(9, 10);                      //nRF24L01 (CE,CSN) connections PIN
+const uint64_t address = 1002502019004; //CA-SS02: 40 + Timestamp
 
 uint16_t delayTime = default_delayTime;
 uint32_t data[3]; //data[0]: ON/OFF - data[1]: new_delayTime - data[2]: state_Device
@@ -19,14 +21,14 @@ void setup()
 
   pinMode(PIR_sensor, INPUT);
   pinMode(control_Device, OUTPUT);
+  pinMode(signal_Led, OUTPUT);
 
   radio.begin();
   radio.setRetries(15, 15);
   radio.setPALevel(RF24_PA_MAX);
-  data[0] = 0;
 }
 
-void loop()
+void checkCommand()
 {
   radio.openReadingPipe(1, address);
   radio.startListening();
@@ -43,32 +45,59 @@ void loop()
     Serial.println(data[1]);
     Serial.print("State device: ");
     Serial.println(data[2]);
+    digitalWrite(signal_Led, HIGH);
+    delay(500);
+    digitalWrite(signal_Led, LOW);
   }
+}
 
+void sendData()
+{
+  radio.stopListening();
+  radio.openWritingPipe(address);
+  radio.write(&data, sizeof(data));
+  Serial.print("Data sent - State of device: ");
+  Serial.println(data[2]);
+}
+
+void loop()
+{
+  checkCommand();
   if (data[0])
   {
+    checkCommand();
     boolean check_PIRSensor = digitalRead(PIR_sensor);
     if (check_PIRSensor)
     {
       digitalWrite(control_Device, HIGH);
-      data[2] = true;
-      radio.stopListening();
-      radio.openWritingPipe(address);
-      radio.write(&data, sizeof(data));
+      data[2] = 1;
+      sendData();
       while (check_PIRSensor)
       {
         check_PIRSensor = digitalRead(PIR_sensor);
-        delay(100);
+        checkCommand();
+        delay(50);
       }
       delay(delayTime);
     }
     else
     {
       digitalWrite(control_Device, LOW);
-      data[2] = false;
-      radio.stopListening();
-      radio.openWritingPipe(address);
-      radio.write(&data, sizeof(data));
+      if (digitalRead(control_Device) != data[2])
+      {
+        data[2] = 0;
+        sendData();
+      }
+    }
+    checkCommand();
+  }
+  else
+  {
+    digitalWrite(control_Device, LOW);
+    if (digitalRead(control_Device) != data[2])
+    {
+      data[2] = 0;
+      sendData();
     }
   }
   delay(100);
