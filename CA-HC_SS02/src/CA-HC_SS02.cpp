@@ -6,20 +6,22 @@
 #include <Ticker.h>
 
 Ticker ticker;
-RF24 radio(2, 15);                     //nRF24L01 (CE,CSN) connections PIN
-const uint64_t address = 401584261612; //CA-SS02: 40 + Timestamp
+RF24 radio(2, 15);                      //nRF24L01 (CE,CSN) connections PIN
+const uint64_t address = 1002502019004; //CA-SS02: 40 + Timestamp
 boolean smartConfigStart = false;
 
 const char *ssid = "username wifi";
 const char *password = "password wifi";
 
-uint32_t data[3]; //data[0]: ON/OFF - data[1]: new_delayTime - data[2]: state_Device
+//data[0]: ON/OFF - data[1]: new_delayTime - data[2]: device_State
+uint32_t data[3];
+uint32_t data_SS02[3];
 const int smartConfig_LED = 16;
 
 //Topic: product_id/button_id     char[10] = "l" / "O"
-const char *CA_SS02_delayTime = "CA-SS02-delayTime";
-const char *CA_SS02_deviceState = "CA-SS02-deviceState";
-const char *CA_SS02_ONOFF = "CA-SS02-ONOFF";
+const char *CA_SS02_delayTime = "CA-SS02/delayTime";
+const char *CA_SS02_deviceState = "CA-SS02/deviceState";
+const char *CA_SS02_ONOFF = "CA-SS02/ONOFF";
 
 //Config MQTT broker information:
 const char *mqtt_server = "chika.gq";
@@ -144,7 +146,7 @@ void callback(char *topic, byte *payload, unsigned int length)
 
   if ((char)topic[10] == 'O')
   {
-    if ((char)payload[0])
+    if ((char)payload[0] == '1')
     {
       data[0] = true;
     }
@@ -152,7 +154,7 @@ void callback(char *topic, byte *payload, unsigned int length)
     {
       data[0] = false;
     }
-    
+
     radio.stopListening();
     radio.openWritingPipe(address);
     radio.write(&data, sizeof(data));
@@ -210,8 +212,18 @@ void loop()
   radio.startListening();
   if (radio.available())
   {
-    memset(&data, ' ', sizeof(data));
-    radio.read(&data, sizeof(data));
+    memset(&data_SS02, ' ', sizeof(data_SS02));
+    radio.read(&data_SS02, sizeof(data_SS02));
+    
+    data[2] = data_SS02[2];
+
+    Serial.println("__________________");
+    Serial.print("Mode: ");
+    Serial.println(data[0]);
+    Serial.print("New delay time: ");
+    Serial.println(data[1]);
+    Serial.print("State device: ");
+    Serial.println(data[2]);
 
     if (data[2])
       client.publish(CA_SS02_deviceState, "1", true);
