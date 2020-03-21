@@ -22,12 +22,12 @@ My Graduate Thesis project work co-operate with Chika Corporation 智家 (チカ
 
 ⚙️ My sample product's schematics - CA-SS 💎
 
-![CA-SS01](https://user-images.githubusercontent.com/48848418/77226068-06bdc800-6ba8-11ea-9b72-be593d4c3af9.jpg)
+![CA-SS01](https://user-images.githubusercontent.com/48848418/77226211-273a5200-6ba9-11ea-8625-c65f81f064c0.png)
 
-![CA-SS02](https://user-images.githubusercontent.com/48848418/76861592-6ad24a80-688f-11ea-8f80-d630728a4e2b.jpg)
+![CA-SS02](https://user-images.githubusercontent.com/48848418/77226213-2acdd900-6ba9-11ea-9aae-31755f4da163.png)
 
-![CA-SS03](https://user-images.githubusercontent.com/48848418/76861600-6c9c0e00-688f-11ea-9849-f797ea7cebd7.jpg)
+![CA-SS03](https://user-images.githubusercontent.com/48848418/77226219-302b2380-6ba9-11ea-965a-808891f18759.png)
 
-![CA-SS04](https://user-images.githubusercontent.com/48848418/77226069-09b8b880-6ba8-11ea-84aa-2b70b153e4ed.jpg)
+![CA-SS04](https://user-images.githubusercontent.com/48848418/77226220-33261400-6ba9-11ea-8122-54c7a23afb1c.png)
 
     Author: Phan Thanh Tung
