@@ -62,6 +62,7 @@ void sendData()
 
 void loop()
 {
+  data[0] = 1;
   checkCommand();
   if (data[0])
   {
