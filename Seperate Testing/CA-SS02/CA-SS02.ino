@@ -34,6 +34,7 @@ void checkCommand()
   radio.startListening();
   if (radio.available())
   {
+    boolean state = digitalRead(signal_Led);
     memset(&data, ' ', sizeof(data));
     radio.read(&data, sizeof(data));
 
@@ -45,9 +46,9 @@ void checkCommand()
     Serial.println(data[1]);
     Serial.print("State device: ");
     Serial.println(data[2]);
-    digitalWrite(signal_Led, HIGH);
+    digitalWrite(signal_Led, !state);
     delay(500);
-    digitalWrite(signal_Led, LOW);
+    digitalWrite(signal_Led, state);
   }
 }
 
@@ -62,10 +63,10 @@ void sendData()
 
 void loop()
 {
-  data[0] = 1;
   checkCommand();
   if (data[0])
   {
+    digitalWrite(signal_Led, HIGH);
     checkCommand();
     boolean check_PIRSensor = digitalRead(PIR_sensor);
     if (check_PIRSensor)
@@ -95,6 +96,7 @@ void loop()
   else
   {
     digitalWrite(control_Device, LOW);
+    digitalWrite(signal_Led, LOW);
     if (digitalRead(control_Device) != data[2])
     {
       data[2] = 0;
