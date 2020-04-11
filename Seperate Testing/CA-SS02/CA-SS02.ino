@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include <RF24.h>
 #include <SPI.h>
+#include <EEPROM.h>
 
 #define PIR_sensor 3
 #define control_Device 4
@@ -11,14 +12,21 @@ RF24 radio(9, 10);                      //nRF24L01 (CE,CSN) connections PIN
 const uint64_t address = 1002502019004; //CA-SS02: 40 + Timestamp
 
 uint16_t delayTime = default_delayTime;
-uint32_t data[3]; //data[0]: ON/OFF - data[1]: new_delayTime - data[2]: state_Device
+float data[3]; //data[0]: ON/OFF - data[1]: new_delayTime - data[2]: state_Device
+
+void checkMode()
+{
+  data[0] = EEPROM.read(0);
+  Serial.print("Mode in EEPROM: ");
+  Serial.println(data[0]);
+}
 
 void setup()
 {
   SPI.begin();
   Serial.println("\nCA-SS02 say hello to your home <3 ! ");
   Serial.begin(9600);
-
+  checkMode();
   pinMode(PIR_sensor, INPUT);
   pinMode(control_Device, OUTPUT);
   pinMode(signal_Led, OUTPUT);
@@ -37,8 +45,8 @@ void checkCommand()
     boolean state = digitalRead(signal_Led);
     memset(&data, ' ', sizeof(data));
     radio.read(&data, sizeof(data));
-
-    delayTime = data[1];
+    
+    delayTime = (int)data[1];
     Serial.println("__________________");
     Serial.print("Mode: ");
     Serial.println(data[0]);
@@ -47,7 +55,7 @@ void checkCommand()
     Serial.print("State device: ");
     Serial.println(data[2]);
     digitalWrite(signal_Led, !state);
-    delay(500);
+    delay(400);
     digitalWrite(signal_Led, state);
   }
 }
@@ -64,21 +72,22 @@ void sendData()
 void loop()
 {
   checkCommand();
-  if (data[0])
+  if ((boolean)data[0])
   {
+    EEPROM.update(0, 1);
     digitalWrite(signal_Led, HIGH);
     checkCommand();
     boolean check_PIRSensor = digitalRead(PIR_sensor);
     if (check_PIRSensor)
     {
       digitalWrite(control_Device, HIGH);
-      data[2] = 1;
+      data[2] = (float)1;
       sendData();
       while (check_PIRSensor)
       {
         check_PIRSensor = digitalRead(PIR_sensor);
         checkCommand();
-        delay(50);
+        delay(5);
       }
       delay(delayTime);
     }
@@ -87,7 +96,7 @@ void loop()
       digitalWrite(control_Device, LOW);
       if (digitalRead(control_Device) != data[2])
       {
-        data[2] = 0;
+        data[2] = (float)0;
         sendData();
       }
     }
@@ -95,13 +104,13 @@ void loop()
   }
   else
   {
+    EEPROM.update(0, 0);
     digitalWrite(control_Device, LOW);
     digitalWrite(signal_Led, LOW);
     if (digitalRead(control_Device) != data[2])
     {
-      data[2] = 0;
+      data[2] = (float)0;
       sendData();
     }
   }
-  delay(100);
 }
