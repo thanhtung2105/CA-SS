@@ -28,11 +28,15 @@ My Graduate Thesis project work co-operate with Chika Corporation 智家 (チカ
 
 ![CA-SS01](https://user-images.githubusercontent.com/48848418/78026736-55c4e380-7386-11ea-8e63-e8457d32dbdf.png)
 
+![image](https://user-images.githubusercontent.com/48848418/80554325-ff83a880-89f6-11ea-9435-c32b392c4374.png)
+
 ![CA-SS02](https://user-images.githubusercontent.com/48848418/80554268-c9462900-89f6-11ea-8e9b-edd3d0b6d3ae.png)
 
 ![CA-SS02](https://user-images.githubusercontent.com/48848418/77226213-2acdd900-6ba9-11ea-9aae-31755f4da163.png)
 
 ![CA-SS02](https://user-images.githubusercontent.com/48848418/78026744-58bfd400-7386-11ea-89e4-1b81ee4b5879.png)
+
+![image](https://user-images.githubusercontent.com/48848418/80554358-1629ff80-89f7-11ea-89c2-25f5cb66aa4e.png)
 
 ![CA-SS03](https://user-images.githubusercontent.com/48848418/80554272-cba88300-89f6-11ea-8199-fa54737e8b57.png)
 
@@ -40,10 +44,14 @@ My Graduate Thesis project work co-operate with Chika Corporation 智家 (チカ
 
 ![CA-SS03](https://user-images.githubusercontent.com/48848418/78026746-5b222e00-7386-11ea-9688-af8ff13a3178.png)
 
-![CA-SS04](https://user-images.githubusercontent.com/48848418/80554275-ce0add00-89f6-11ea-8104-9e876fcc0038.png)
+![image](https://user-images.githubusercontent.com/48848418/80554329-03172f80-89f7-11ea-8f35-9b3fedb753c0.png)
+
+![image](https://user-images.githubusercontent.com/48848418/80554419-47a2cb00-89f7-11ea-9e45-e6b3367e09bf.png)
 
 ![CA-SS04](https://user-images.githubusercontent.com/48848418/77226220-33261400-6ba9-11ea-8122-54c7a23afb1c.png)
 
 ![CA-SS04](https://user-images.githubusercontent.com/48848418/78026752-5cebf180-7386-11ea-9095-89e000118d05.png)
+
+![image](https://user-images.githubusercontent.com/48848418/80554336-08747a00-89f7-11ea-878f-1a9ef603aa6e.png)
 
     Author: Phan Thanh Tung
