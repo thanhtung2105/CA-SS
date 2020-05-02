@@ -3,6 +3,7 @@
 #include <PubSubClient.h>
 #include <Ticker.h>
 #include <ArduinoJson.h>
+#include <SPI.h>
 
 /*
 ****** From SS01 to MQTT ******
@@ -32,6 +33,7 @@ boolean buttonActive = false;
 boolean sensorVal = false;
 boolean sensorLoop = false;
 boolean initialSensor = false;
+
 boolean allowAlarm = false;
 boolean buttonValue = false;
 boolean door = false;
@@ -169,51 +171,33 @@ boolean checkSensor()
   char payload_sendMQTT[300];
   StaticJsonDocument<300> JsonDoc;
   sensorVal = digitalRead(mc35);
-  
-  if (!initialSensor)
+
+  if (sensorVal != sensorLoop)
   {
     if (sensorVal)
     {
-      sensorLoop = true;
       JsonDoc["alert"] = allowAlarm;
       JsonDoc["state"] = true;
       serializeJson(JsonDoc, sendMQTT);
       sendMQTT.toCharArray(payload_sendMQTT, sendMQTT.length() + 1);
       client.publish(SS01_id, payload_sendMQTT, true);
+      sensorLoop = sensorVal;
       return true;
     }
     else
     {
-      sensorLoop = false;
       JsonDoc["alert"] = allowAlarm;
       JsonDoc["state"] = false;
       serializeJson(JsonDoc, sendMQTT);
       sendMQTT.toCharArray(payload_sendMQTT, sendMQTT.length() + 1);
       client.publish(SS01_id, payload_sendMQTT, true);
+      sensorLoop = sensorVal;
       return false;
     }
-    initialSensor = true;
   }
-
-  if (sensorVal && !sensorLoop)
+  else
   {
-    JsonDoc["alert"] = allowAlarm;
-    JsonDoc["state"] = true;
-    serializeJson(JsonDoc, sendMQTT);
-    sendMQTT.toCharArray(payload_sendMQTT, sendMQTT.length() + 1);
-    client.publish(SS01_id, payload_sendMQTT, true);
-    sensorLoop = true;
-    return true;
-  }
-  else if (!sensorVal && sensorLoop)
-  {
-    JsonDoc["alert"] = allowAlarm;
-    JsonDoc["state"] = false;
-    serializeJson(JsonDoc, sendMQTT);
-    sendMQTT.toCharArray(payload_sendMQTT, sendMQTT.length() + 1);
-    client.publish(SS01_id, payload_sendMQTT, true);
-    sensorLoop = false;
-    return false;
+    return sensorVal;
   }
 }
 
