@@ -122,10 +122,12 @@ void loop()
     {
       client.loop();
       // do something here
-      checkButton();
-      door = checkSensor();
+      checkButton();        // Turn on or off alert?!
+      door = checkSensor(); // Check state of door?!
+
       if (allowAlarm)
       {
+
         digitalWrite(alarmLed, HIGH); //turn on led
         if (door || doorLoop)
         {
@@ -170,6 +172,7 @@ boolean checkSensor()
   String sendMQTT;
   char payload_sendMQTT[300];
   StaticJsonDocument<300> JsonDoc;
+
   sensorVal = digitalRead(mc35);
 
   if (sensorVal != sensorLoop)
@@ -213,6 +216,14 @@ void checkButton()
       delay(100);
     }
     allowAlarm = !allowAlarm;
+    String sendMQTT;
+    char payload_sendMQTT[300];
+    StaticJsonDocument<300> JsonDoc;
+    JsonDoc["state"] = door;
+    JsonDoc["alert"] = allowAlarm;
+    serializeJson(JsonDoc, sendMQTT);
+    sendMQTT.toCharArray(payload_sendMQTT, sendMQTT.length() + 1);
+    client.publish(SS01_id, payload_sendMQTT, true);
   }
 }
 
@@ -240,6 +251,7 @@ void callback(char *topic, byte *payload, unsigned int length)
   Serial.print(topic);
   Serial.print("] ");
   String payload_toStr;
+  Serial.println(payload_toStr);
   String mtopic = (String)topic;
 
   for (uint16_t i = 0; i < length; i++)
@@ -313,7 +325,7 @@ boolean startSmartConfig()
 
 void longPress()
 {
-  Serial.println(digitalRead(btn_config));
+  // Serial.println(digitalRead(btn_config));
   if (digitalRead(btn_config) == HIGH)
   {
     if (buttonActive == false)
