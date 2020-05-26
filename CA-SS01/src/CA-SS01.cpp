@@ -21,7 +21,7 @@
 #define ledR 16
 #define ledB 5
 #define btn_config 4
-#define mc35 0
+#define mc35 9        //SD2
 #define btn_allow 14
 #define alarm 12
 #define alarmLed 13
@@ -73,7 +73,7 @@ void setup()
   pinMode(ledR, OUTPUT);            // led red set on
   pinMode(ledB, OUTPUT);            // led blue set on
   pinMode(btn_config, INPUT);       // btn_config is ready
-  pinMode(mc35, INPUT_PULLUP);      // sensor is ready
+  
   pinMode(btn_allow, INPUT_PULLUP); // button allow alarm ready
   pinMode(alarm, OUTPUT);
   pinMode(alarmLed, OUTPUT);
@@ -94,7 +94,7 @@ void setup()
 
   if (!WiFi.isConnected()) // still not connected
   {
-    startSmartConfig(); // start Smartconfig
+    startSmartConfig();
   }
   else
   {
@@ -107,8 +107,10 @@ void setup()
     Serial.println(WiFi.localIP());
   }
 
+  delay(1000);
   client.setServer(mqtt_server, mqtt_port);
   client.setCallback(callback);
+  pinMode(mc35, INPUT_PULLUP);      // sensor is ready
 }
 
 void loop()
@@ -124,6 +126,8 @@ void loop()
       // do something here
       checkButton();        // Turn on or off alert?!
       door = checkSensor(); // Check state of door?!
+      Serial.print("Door state: ");
+      Serial.println(door);
 
       if (allowAlarm)
       {
@@ -145,9 +149,9 @@ void loop()
       }
     }
     else
-    {
-      reconnect();
-    }
+     {
+       reconnect();
+     }
   }
   else
   {
